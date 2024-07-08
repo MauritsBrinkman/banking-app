@@ -33,6 +33,7 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
   }
 }
 
+
 export const signIn = async ({ email, password }: signInProps) => {
   try {
     const { account } = await createAdminClient();
@@ -120,6 +121,7 @@ export async function getLoggedInUser() {
   }
 }
 
+
 export const logoutAccount = async () => {
   try {
     const { account } = await createSessionClient();
@@ -134,16 +136,22 @@ export const logoutAccount = async () => {
 
 export const createLinkToken = async (user: User) => {
   try {
+    const { PLAID_CLIENT_ID, PLAID_SECRET } = process.env;
+
+    if (!PLAID_CLIENT_ID || !PLAID_SECRET) {
+      throw new Error('Missing PLAID_CLIENT_ID or PLAID_SECRET');
+    }
+
     const tokenParams = {
+      client_id: PLAID_CLIENT_ID,
+      secret: PLAID_SECRET,
       user: {
-        client_user_id: user.$id,
+        client_user_id: user.$id
       },
       client_name: `${user.firstName} ${user.lastName}`,
       products: ['auth'] as Products[],
       language: 'en',
       country_codes: ['US'] as CountryCode[],
-      client_id: process.env.PLAID_CLIENT_ID,
-      secret: process.env.PLAID_SECRET,        
     };
 
     const response = await plaidClient.linkTokenCreate(tokenParams);
@@ -153,6 +161,7 @@ export const createLinkToken = async (user: User) => {
     console.log(error);
   }
 };
+
 
 export const createBankAccount = async ({
   userId,
@@ -178,7 +187,7 @@ export const createBankAccount = async ({
         shareableId,
       }
     )
-
+    
     return parseStringify(bankAccount);
   } catch (error) {
     console.log(error);
@@ -250,13 +259,13 @@ export const exchangePublicToken = async ({
 export const getBanks = async ({ userId }: getBanksProps) => {
   try {
     const { database } = await createAdminClient();
-
+    
     const banks = await database.listDocuments(
       DATABASE_ID!,
       BANK_COLLECTION_ID!,
       [Query.equal('userId', [userId])]
     )
-
+  
     return parseStringify(banks.documents);
   } catch (error) {
     console.log(error)

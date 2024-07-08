@@ -6,7 +6,7 @@ import { createLinkToken, exchangePublicToken } from '@/lib/actions/user.actions
 import Image from 'next/image';
 import { PlaidLinkProps } from '@/types';
 
-const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
+const  PlaidLink = ({ user, variant }: PlaidLinkProps) => {
   const router = useRouter();
 
   const [token, setToken] = useState('');
